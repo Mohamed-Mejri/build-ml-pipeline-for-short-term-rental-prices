@@ -1,9 +1,12 @@
+"""
+Module used to run the full pipeline for short term rental prices
+"""
+
 import json
 
-import mlflow
-import tempfile
 import os
-import wandb
+import tempfile
+import mlflow
 import hydra
 from omegaconf import DictConfig
 
@@ -13,10 +16,7 @@ _steps = [
     "data_check",
     "data_split",
     "train_random_forest",
-    # NOTE: We do not include this in the steps so it is not run by mistake.
-    # You first need to promote a model export to "prod" before you can run this,
-    # then you need to run this step explicitly
-#    "test_regression_model"
+    "test_regression_model"
 ]
 
 
@@ -50,7 +50,7 @@ def go(config: DictConfig):
             )
 
         if "basic_cleaning" in active_steps:
-            # Perform basic cleaning to the data
+            # Perform some basic cleaning
             _ = mlflow.run(
                 os.path.join(hydra.utils.get_original_cwd(), "src", "basic_cleaning"),
                 "main",
@@ -110,6 +110,7 @@ def go(config: DictConfig):
                     "output_artifact": "random_forest_export"
                 }
             )
+
 
         if "test_regression_model" in active_steps:
 
